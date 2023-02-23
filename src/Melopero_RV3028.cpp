@@ -4,7 +4,8 @@ Melopero_RV3028::Melopero_RV3028(){
 }
 
 void Melopero_RV3028::initI2C(TwoWire &bus){
-    i2c = &bus;
+    i2c = &bus;    
+    pStatus.raw_byte = readFromRegister(STATUS_REGISTER_ADDRESS);
 }
 
 uint8_t Melopero_RV3028::readFromRegister(uint8_t registerAddress){
@@ -26,6 +27,25 @@ void Melopero_RV3028::writeToRegister(uint8_t registerAddress, uint8_t value){
     i2c->write(registerAddress);
     i2c->write(value);
     i2c->endTransmission();
+}  
+
+bool Melopero_RV3028::status_isPORF(bool clear = false) {
+    pStatus.raw_byte = readFromRegister(STATUS_REGISTER_ADDRESS);
+    if ( pStatus.Status.porf && clear) {
+     pStatus.Status.porf = 0;  //write 0 to the flag to use it.
+     writeToRegister(STATUS_REGISTER_ADDRESS, pStatus.raw_byte );
+     return true;
+    }
+    return pStatus.Status.porf;
+}
+bool Melopero_RV3028::status_isBSF(bool clear = false) {
+    pStatus.raw_byte = readFromRegister(STATUS_REGISTER_ADDRESS);
+    if ( pStatus.Status.bsf && clear) {
+     pStatus.Status.bsf = 0;  //write 0 to the flag to use it.
+     writeToRegister(STATUS_REGISTER_ADDRESS, pStatus.raw_byte);
+     return true;
+    }
+    return pStatus.Status.bsf;
 }
 
 void Melopero_RV3028::writeToRegisters(uint8_t startAddress, uint8_t *values, uint8_t length){

@@ -55,11 +55,30 @@ enum TimerClockFrequency : uint8_t {
         Hz1_60 = 0x03
 };
 
+union uRV3028_status {
+ uint8_t raw_byte;
+ struct {
+  bool porf : 1; //b[0] 
+  bool evf : 1;
+  bool af : 1;
+  bool tf : 1;
+  bool uf : 1;
+  bool bsf : 1;
+  bool clkf : 1;
+  bool EEbusy : 1; //b[7]
+ } Status;
+}  __attribute__ ((packed));
+
 class Melopero_RV3028 {
 
+    private:
+        uRV3028_status pStatus;
+        
     // instance attributes/members
     public:
         TwoWire *i2c;
+        bool status_isPORF(bool clear);
+        bool status_isBSF(bool clear);
         
     //constructor and device initializer
     public:
